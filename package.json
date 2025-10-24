@@ -13,8 +13,9 @@
   "main": "lib/plugin.js",
   "name": "plugin-template",
   "scripts": {
-    "build": "node esbuild.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "build": "node esbuild-test.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "deploy": "node esbuild.js"
   },
   "testEnvironment": "jsdom",
   "type": "module",
