@@ -6,14 +6,12 @@
     },
     appOption: {
       "Open weekly note": async function(app) {
-        const weeklyNote = await app.findNote({ title: plugin.constants.weeklyNoteTitle });
-        if (weeklyNote) {
-          await app.navigate(`https://amplenote.com/notes/${weeklyNote.uuid}`);
-        } else {
-          await app.alert("No weekly note found");
-          console.error("No weekly note found");
-          console.error("Weekly note title: ", plugin.constants.weeklyNoteTitle);
+        let weeklyNote = await app.findNote({ title: plugin.constants.weeklyNoteTitle });
+        if (!weeklyNote) {
+          console.log("No weekly note found, creating new one");
+          weeklyNote = await createNote(app, plugin.constants.weeklyNoteTitle);
         }
+        await app.navigate(`https://amplenote.com/notes/${weeklyNote.uuid}`);
       }
     }
   };
