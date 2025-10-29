@@ -11,10 +11,17 @@
           console.error("No template found for weekly note");
           return;
         }
-        const newWeeklyNote = await app.createNote(weeklyTemplate.title, weeklyTemplate.tags);
-        app.navigate(`https://amplenote.com/notes/${newWeeklyNote.uuid}`);
+        console.log("Weekly note template:");
+        console.log(weeklyTemplate);
+        const newNoteUuid = await app.createNote(weeklyTemplate.name, weeklyTemplate.tags);
+        const content = await app.getNoteContent({ uuid: weeklyTemplate.uuid });
+        console.log("Content:");
+        console.log(content);
+        await app.insertNoteContent({ uuid: newNoteUuid }, content);
+        app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
       }
     }
   };
   var plugin_default = plugin;
-})();
+  return plugin_default;
+})()
