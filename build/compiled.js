@@ -12,12 +12,20 @@
     return noteTitle;
   }
   async function findIfNoteExists(app, noteTitle) {
-    const existingNote = await app.findNote({ name: noteTitle });
+    const processedNoteTitle = processNoteTitle(noteTitle);
+    const existingNote = await app.findNote({ name: processedNoteTitle });
     if (existingNote) {
       console.log("Note with same name exists");
       console.log(existingNote);
       return existingNote.uuid;
     }
+  }
+  async function createNoteFromTemplate(app, template) {
+    const processedNoteTitle = processNoteTitle(template.name);
+    const newNoteUuid = await app.createNote(processedNoteTitle, template.tags);
+    const content = await app.getNoteContent({ uuid: template.uuid });
+    await app.insertNoteContent({ uuid: newNoteUuid }, content);
+    return newNoteUuid;
   }
 
   // lib/plugin.js
@@ -34,15 +42,12 @@
         }
         console.log("Weekly note template:");
         console.log(weeklyTemplate);
-        const processedNoteTitle = processNoteTitle(weeklyTemplate.name);
-        const existingNoteUuid = await findIfNoteExists(app, processedNoteTitle);
+        const existingNoteUuid = await findIfNoteExists(app, weeklyTemplate.name);
         if (existingNoteUuid) {
           app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
           return;
         }
-        const newNoteUuid = await app.createNote(weeklyTemplate.name, weeklyTemplate.tags);
-        const content = await app.getNoteContent({ uuid: weeklyTemplate.uuid });
-        await app.insertNoteContent({ uuid: newNoteUuid }, content);
+        const newNoteUuid = await createNoteFromTemplate(app, weeklyTemplate);
         app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
       }
     }
