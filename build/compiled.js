@@ -31,7 +31,7 @@
         if (existingNote) {
           console.log("Note with same name exists");
           console.log(existingNote);
-          app.navigate(`https://amplenote.com/notes/${existingNote.uuid}`);
+          app.navigate(`https://www.amplenote.com/notes/${existingNote.uuid}`);
           return;
         }
         const newNoteUuid = await app.createNote(weeklyTemplate.name, weeklyTemplate.tags);
