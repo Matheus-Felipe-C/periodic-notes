@@ -11,6 +11,14 @@
     noteTitle = noteTitle.replace(/{{[Q]}}/g, (/* @__PURE__ */ new Date()).getMonth() / 3 + 1).toString();
     return noteTitle;
   }
+  async function findIfNoteExists(app, noteTitle) {
+    const existingNote = await app.findNote({ name: noteTitle });
+    if (existingNote) {
+      console.log("Note with same name exists");
+      console.log(existingNote);
+      return existingNote.uuid;
+    }
+  }
 
   // lib/plugin.js
   var plugin = {
@@ -27,11 +35,9 @@
         console.log("Weekly note template:");
         console.log(weeklyTemplate);
         const processedNoteTitle = processNoteTitle(weeklyTemplate.name);
-        const existingNote = await app.findNote({ name: processedNoteTitle });
-        if (existingNote) {
-          console.log("Note with same name exists");
-          console.log(existingNote);
-          app.navigate(`https://www.amplenote.com/notes/${existingNote.uuid}`);
+        const existingNoteUuid = await findIfNoteExists(app, processedNoteTitle);
+        if (existingNoteUuid) {
+          app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
           return;
         }
         const newNoteUuid = await app.createNote(weeklyTemplate.name, weeklyTemplate.tags);
@@ -42,4 +48,5 @@
     }
   };
   var plugin_default = plugin;
-})();
+  return plugin_default
+})()
