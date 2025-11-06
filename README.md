@@ -3,21 +3,21 @@ A plugin for automatically creating daily, weekly, quarterly and monthly notes b
 
 # Roadmap
 - [ ] Minimum plugin to be published to the plugin directory
-   - [ ] Check if there are notes created on app startup
+   - [x] Check if there are notes created on app startup
    - [ ] Auto create daily jots with template
       - [ ] Needs to be in the format that Amplenote supports for daily jots to avoid duplication
    - [ ] Auto create weekly notes every Sunday with template
    - [ ] Auto create monthly notes every 1st day of the month with template
 - [ ] Auto create quarterly notes with template
-- [ ] Allow automatically naming notes with wildcard values
-   - [ ] `{{YYYY}}`: 4-digit year (ex: 2025)
-   - [ ] `{{YY}}`: 2-digit year(ex: 25)
-   - [ ] `{{MMM}}`: full month name (ex: October)
-   - [ ] `{{MM}}`: 2-digit month (ex: 06)
-   - [ ] `{{M}}`: current month (ex: 6)
-   - [ ] `{{DD}}`: 2-digit day (ex: 01)
-   - [ ] `{{D}}`: current day (ex: 21)
-   - [ ] `{{[Q]}}`: transforms into the quarter
+- [x] Allow automatically naming notes with wildcard values
+   - [x] `{{YYYY}}`: 4-digit year (ex: 2025)
+   - [x] `{{YY}}`: 2-digit year(ex: 25)
+   - [x] `{{MMM}}`: full month name (ex: October)
+   - [x] `{{MM}}`: 2-digit month (ex: 06)
+   - [x] `{{M}}`: current month (ex: 6)
+   - [x] `{{DD}}`: 2-digit day (ex: 01)
+   - [x] `{{D}}`: current day (ex: 21)
+   - [x] `{{[Q]}}`: transforms into the quarter
 - [ ] Function to edit the plugin options without moving to the plugin settings page
 
 ## Testing
