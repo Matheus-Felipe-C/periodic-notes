@@ -38,21 +38,34 @@
       yearlyNoteTemplate: ""
     },
     appOption: {
-      "Open daily note": async function(app) {
-        let dailyTemplate = await app.findNote({ uuid: plugin.constants.dailyNoteTemplate });
-        if (!dailyTemplate) {
-          console.error("No template found for daily note");
-          return;
+      "Open daily note": {
+        async check(app) {
+          let dailyTemplate = await app.findNote({ uuid: plugin.constants.dailyNoteTemplate });
+          if (!dailyTemplate) {
+            console.warn("No template found for daily note");
+            return false;
+          }
+          const existingNoteUuid = await findIfNoteExists(app, dailyTemplate.name);
+          if (existingNoteUuid) {
+            return "Open Daily Note";
+          } else {
+            return "Create Daily Note";
+          }
+        },
+        async run(app) {
+          const dailyTemplate = await app.findNote({ uuid: plugin.constants.dailyNoteTemplate });
+          if (!dailyTemplate) {
+            console.error("No template found for daily note");
+            return;
+          }
+          const existingNoteUuid = await findIfNoteExists(app, dailyTemplate.name);
+          if (existingNoteUuid) {
+            app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
+            return;
+          }
+          const newNoteUuid = await createNoteFromTemplate(app, dailyTemplate);
+          app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
         }
-        console.log("Daily note template:");
-        console.log(dailyTemplate);
-        const existingNoteUuid = await findIfNoteExists(app, dailyTemplate.name);
-        if (existingNoteUuid) {
-          app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
-          return;
-        }
-        const newNoteUuid = await createNoteFromTemplate(app, dailyTemplate);
-        app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
       },
       "Open weekly note": async function(app) {
         let weeklyTemplate = await app.findNote({ uuid: plugin.constants.weeklyNoteTemplate });
@@ -121,4 +134,5 @@
     }
   };
   var plugin_default = plugin;
-})();
+  return plugin_default;
+})()
