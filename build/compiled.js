@@ -1,5 +1,24 @@
 (() => {
-  // lib/utils/processNoteTitle.js
+  // lib/utils/noteTemplateMessages.js
+  function messageForNoteResult(result) {
+    if (result.ok) return null;
+    switch (result.reason) {
+      case "MISSING_TEMPLATE_UUID":
+        return "This note command is not configured. Please select a template in settings.";
+      case "TEMPLATE_NOT_FOUND":
+        return "The template note could not be found. It may have been deleted.";
+      case "TEMPLATE_LOOKUP_FAILED":
+        return "Could not access your notes. Please try again later.";
+      case "NOTE_LOOKUP_FAILED":
+        return "Something went wrong while searching for existing notes.";
+      case "NOTE_CREATION_FAILED":
+        return "The note could not be created. Please check your permissions.";
+      default:
+        return "An unknown error occurred.";
+    }
+  }
+
+  // lib/utils/noteTemplateService.js
   function processNoteTitle(noteTitle) {
     noteTitle = noteTitle.replace(/{{YYYY}}/g, (/* @__PURE__ */ new Date()).getFullYear().toString());
     noteTitle = noteTitle.replace(/{{YY}}/g, (/* @__PURE__ */ new Date()).getFullYear().toString().slice(-2));
@@ -33,110 +52,91 @@
     await app.insertNoteContent({ uuid: newNoteUuid }, content);
     return newNoteUuid;
   }
+  async function openPeriodicNote(app, templateSettingKey, tagsToExclude = []) {
+    const template = await app.findNote({ uuid: app.settings[templateSettingKey] });
+    if (!template) {
+      return { ok: false, reason: "TEMPLATE_NOT_FOUND" };
+    }
+    try {
+      const existingNoteUuid = await findIfNoteExists(app, template.name);
+      if (existingNoteUuid) {
+        app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
+        return { ok: true, action: "NAVIGATED_EXISTING" };
+      }
+    } catch (err) {
+      console.error("Error while looking for existing note:", err);
+      return { ok: false, reason: "NOTE_LOOKUP_FAILED", error: err };
+    }
+    const newNoteUuid = await createNoteFromTemplate(app, template, tagsToExclude);
+    app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
+    return { ok: true, action: "CREATED_NEW", uuid: newNoteUuid };
+  }
 
   // lib/plugin.js
   var plugin = {
     constants: {
-      dailyNoteTemplate: "Daily Note Template UUID",
-      weeklyNoteTemplate: "Weekly Note Template UUID",
-      monthlyNoteTemplate: "Monthly Note Template UUID",
-      quartelyNoteTemplate: "Quarterly Note Template UUID",
-      yearlyNoteTemplate: "Annual Note Template UUID",
-      tagsToExclude: "Tags to exclude"
+      dailyNoteTemplate: "dailyNoteTemplate",
+      weeklyNoteTemplate: "weeklyNoteTemplate",
+      monthlyNoteTemplate: "monthlyNoteTemplate",
+      quartelyNoteTemplate: "quartelyNoteTemplate",
+      yearlyNoteTemplate: "yearlyNoteTemplate",
+      tagsToExclude: "tagsToExclude"
     },
     appOption: {
-      "Open daily note": {
-        async check(app) {
-          let dailyTemplate = await app.findNote({ uuid: plugin.constants.dailyNoteTemplate });
-          if (!dailyTemplate) {
-            console.warn("No template found for daily note");
-            return false;
-          }
-          const existingNoteUuid = await findIfNoteExists(app, dailyTemplate.name);
-          if (existingNoteUuid) {
-            return "Open Daily Note";
-          } else {
-            return "Create Daily Note";
-          }
-        },
-        async run(app) {
-          const dailyTemplate = await app.findNote({ uuid: app.settings[plugin.constants.dailyNoteTemplate] });
-          if (!dailyTemplate) {
-            console.error("No template found for daily note");
-            return;
-          }
-          const existingNoteUuid = await findIfNoteExists(app, dailyTemplate.name);
-          if (existingNoteUuid) {
-            app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
-            return;
-          }
-          const newNoteUuid = await createNoteFromTemplate(app, dailyTemplate, app.settings["Tags to exclude"]);
-          app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
+      "Open daily note": async function(app) {
+        const result = await openPeriodicNote({
+          app,
+          templateUuid: app.settings[plugin.constants.dailyNoteTemplate],
+          tagsToExclude: app.settings[plugin.constants.tagsToExclude]
+        });
+        const message = messageForNoteResult(result);
+        if (message) {
+          app.alert(message);
         }
       },
       "Open weekly note": async function(app) {
-        let weeklyTemplate = await app.findNote({ uuid: app.settings[plugin.constants.weeklyNoteTemplate] });
-        if (!weeklyTemplate) {
-          console.error("No template found for weekly note");
-          return;
+        const result = await openPeriodicNote({
+          app,
+          templateUuid: app.settings[plugin.constants.weeklyNoteTemplate],
+          tagsToExclude: app.settings[plugin.constants.tagsToExclude]
+        });
+        const message = messageForNoteResult(result);
+        if (message) {
+          app.alert(message);
         }
-        console.log("Weekly note template:");
-        console.log(weeklyTemplate);
-        const existingNoteUuid = await findIfNoteExists(app, weeklyTemplate.name);
-        if (existingNoteUuid) {
-          app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
-          return;
-        }
-        const newNoteUuid = await createNoteFromTemplate(app, weeklyTemplate, app.settings[plugin.constants.tagsToExclude]);
-        app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
       },
       "Open monthly note": async function(app) {
-        let monthlyTemplate = await app.findNote({ uuid: app.settings[plugin.constants.monthlyNoteTemplate] });
-        if (!monthlyTemplate) {
-          console.error("No template found for monthly note");
-          return;
+        const result = await openPeriodicNote({
+          app,
+          templateUuid: app.settings[plugin.constants.monthlyNoteTemplate],
+          tagsToExclude: app.settings[plugin.constants.tagsToExclude]
+        });
+        const message = messageForNoteResult(result);
+        if (message) {
+          app.alert(message);
         }
-        console.log("Monthly note template:");
-        console.log(monthlyTemplate);
-        const existingNoteUuid = await findIfNoteExists(app, monthlyTemplate.name);
-        if (existingNoteUuid) {
-          app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
-          return;
-        }
-        const newNoteUuid = await createNoteFromTemplate(app, monthlyTemplate, app.settings[plugin.constants.tagsToExclude]);
-        app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
       },
       "Open quartely note": async function(app) {
-        let quartelyTemplate = await app.findNote({ uuid: app.settings[plugin.constants.quartelyNoteTemplate] });
-        if (!quartelyTemplate) {
-          console.error("No template found for quartely note");
-          return;
+        const result = await openPeriodicNote({
+          app,
+          templateUuid: app.settings[plugin.constants.quartelyNoteTemplate],
+          tagsToExclude: app.settings[plugin.constants.tagsToExclude]
+        });
+        const message = messageForNoteResult(result);
+        if (message) {
+          app.alert(message);
         }
-        console.log("Quartely note template:");
-        console.log(quartelyTemplate);
-        const existingNoteUuid = await findIfNoteExists(app, quartelyTemplate.name);
-        if (existingNoteUuid) {
-          app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
-          return;
-        }
-        const newNoteUuid = await createNoteFromTemplate(app, quartelyTemplate, app.settings[plugin.constants.tagsToExclude]);
-        app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
       },
       "Open yearly note": async function(app) {
-        let yearlyTemplate = await app.findNote({ uuid: app.settings[plugin.constants.yearlyNoteTemplate] });
-        if (!yearlyTemplate) {
-          console.error("No template found for yearly note");
-          return;
+        const result = await openPeriodicNote({
+          app,
+          templateUuid: app.settings[plugin.constants.yearlyNoteTemplate],
+          tagsToExclude: app.settings[plugin.constants.tagsToExclude]
+        });
+        const message = messageForNoteResult(result);
+        if (message) {
+          app.alert(message);
         }
-        console.log("Yearly note template:");
-        console.log(yearlyTemplate);
-        const existingNoteUuid = await findIfNoteExists(app, yearlyTemplate.name);
-        if (existingNoteUuid) {
-          app.navigate(`https://www.amplenote.com/notes/${existingNoteUuid}`);
-          return;
-        }
-        const newNoteUuid = await createNoteFromTemplate(app, yearlyTemplate, app.settings[plugin.constants.tagsToExclude]);
-        app.navigate(`https://www.amplenote.com/notes/${newNoteUuid}`);
       }
     }
   };
