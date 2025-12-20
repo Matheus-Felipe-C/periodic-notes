@@ -97,6 +97,20 @@ describe("plugin main file", () => {
 
         expect(app.alert).toHaveBeenCalledWith("The template note could not be found. It may have been deleted.");
       });
+
+      it("Alerts when template setting not configured", async () => {
+        // simulate user not configuring the template in plugin settings
+        delete app.settings[plugin.constants[constantKey]];
+
+        await pluginInstance.appOption[optionName](app);
+
+        const key = optionName.split(" ")[1];
+        const capitalized = key.charAt(0).toUpperCase() + key.slice(1);
+        const expected = `${capitalized} note template is not configured. Please select a template in plugin settings.`;
+
+        expect(openPeriodicNote).not.toHaveBeenCalled();
+        expect(app.alert).toHaveBeenCalledWith(expected);
+      });
     });
   });
 });
