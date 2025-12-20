@@ -84,9 +84,14 @@
     },
     appOption: {
       "Open daily note": async function(app) {
+        const templateUuid = app.settings[plugin.constants.dailyNoteTemplate];
+        if (!templateUuid) {
+          app.alert("Daily note template is not configured. Please select a template in plugin settings.");
+          return;
+        }
         const result = await openPeriodicNote({
           app,
-          templateUuid: app.settings[plugin.constants.dailyNoteTemplate],
+          templateUuid,
           tagsToExclude: app.settings[plugin.constants.tagsToExclude]
         });
         const message = messageForNoteResult(result);
@@ -95,9 +100,14 @@
         }
       },
       "Open weekly note": async function(app) {
+        const templateUuid = app.settings[plugin.constants.weeklyNoteTemplate];
+        if (!templateUuid) {
+          app.alert("Weekly note template is not configured. Please select a template in plugin settings.");
+          return;
+        }
         const result = await openPeriodicNote({
           app,
-          templateUuid: app.settings[plugin.constants.weeklyNoteTemplate],
+          templateUuid,
           tagsToExclude: app.settings[plugin.constants.tagsToExclude]
         });
         const message = messageForNoteResult(result);
@@ -106,9 +116,14 @@
         }
       },
       "Open monthly note": async function(app) {
+        const templateUuid = app.settings[plugin.constants.monthlyNoteTemplate];
+        if (!templateUuid) {
+          app.alert("Monthly note template is not configured. Please select a template in plugin settings.");
+          return;
+        }
         const result = await openPeriodicNote({
           app,
-          templateUuid: app.settings[plugin.constants.monthlyNoteTemplate],
+          templateUuid,
           tagsToExclude: app.settings[plugin.constants.tagsToExclude]
         });
         const message = messageForNoteResult(result);
@@ -117,9 +132,14 @@
         }
       },
       "Open quartely note": async function(app) {
+        const templateUuid = app.settings[plugin.constants.quartelyNoteTemplate];
+        if (!templateUuid) {
+          app.alert("Quartely note template is not configured. Please select a template in plugin settings.");
+          return;
+        }
         const result = await openPeriodicNote({
           app,
-          templateUuid: app.settings[plugin.constants.quartelyNoteTemplate],
+          templateUuid,
           tagsToExclude: app.settings[plugin.constants.tagsToExclude]
         });
         const message = messageForNoteResult(result);
@@ -128,9 +148,14 @@
         }
       },
       "Open yearly note": async function(app) {
+        const templateUuid = app.settings[plugin.constants.yearlyNoteTemplate];
+        if (!templateUuid) {
+          app.alert("Yearly note template is not configured. Please select a template in plugin settings.");
+          return;
+        }
         const result = await openPeriodicNote({
           app,
-          templateUuid: app.settings[plugin.constants.yearlyNoteTemplate],
+          templateUuid,
           tagsToExclude: app.settings[plugin.constants.tagsToExclude]
         });
         const message = messageForNoteResult(result);
