@@ -75,12 +75,12 @@
   // lib/plugin.js
   var plugin = {
     constants: {
-      dailyNoteTemplate: "dailyNoteTemplate",
-      weeklyNoteTemplate: "weeklyNoteTemplate",
-      monthlyNoteTemplate: "monthlyNoteTemplate",
-      quartelyNoteTemplate: "quartelyNoteTemplate",
-      yearlyNoteTemplate: "yearlyNoteTemplate",
-      tagsToExclude: "tagsToExclude"
+      dailyNoteTemplate: "Daily Note Template UUID",
+      weeklyNoteTemplate: "Weekly Note Template UUID",
+      monthlyNoteTemplate: "Monthly Note Template UUID",
+      quartelyNoteTemplate: "Quarterly Note Template UUID",
+      yearlyNoteTemplate: "Yearly Note Template UUID",
+      tagsToExclude: "Tags To Exclude"
     },
     appOption: {
       "Open daily note": async function(app) {
@@ -166,5 +166,5 @@
     }
   };
   var plugin_default = plugin;
-  return plugin_default;
+  return plugin_default
 })()
